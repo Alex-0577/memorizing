@@ -328,7 +328,7 @@
             } else {
                 memorizationText = "";
                 sentences = [];
-                memorizedSentencesDiv.innerText = "";
+                memorizedSentencesDiv.innerText = sentences[0].text + sentences[0].punctuation;
                 currentSentenceDiv.innerText = "";
                 document.getElementById("word-options").innerHTML = "";
                 document.getElementById("message").innerText = "";
@@ -336,24 +336,55 @@
         }
 
         function startPractice() {
-            sentences = memorizationText.split(/[，。？！.?!]/).filter(sentence => sentence.trim() !== "");
+            // 修改后的正则表达式（包含所有中文标点）
+            const splitRegex = /([，。！？；：“”‘’—（）【】、])/; // ✅ 支持更多中文标点
+            const tempParts = memorizationText.split(splitRegex);
+
+            sentences = [];
+            let currentText = "";
+            
+            // 重构处理逻辑
+            tempParts.forEach((part, index) => {
+                if (index % 2 === 0) {
+                    // 偶数索引为文本内容
+                    currentText = part.trim();
+                } else {
+                    // 奇数索引为标点符号
+                    if (currentText) {
+                        sentences.push({
+                            text: currentText,
+                            punctuation: part // ✅ 保留原始标点
+                        });
+                        currentText = "";
+                    }
+                }
+            });
+
+            // 处理最后未闭合的文本
+            if (currentText) {
+                sentences.push({
+                    text: currentText,
+                    punctuation: ""
+                });
+            }
+
+            // 调试输出（完成后可删除）
+            console.log("分割结果：", sentences);
+
             if (sentences.length > 0) {
-                memorizedSentencesDiv.innerText = sentences[0] + (memorizationText.includes("。") || memorizationText.includes("？") || memorizationText.includes("！") ? "。" : "");
+                memorizedSentencesDiv.innerText = sentences[0].text + sentences[0].punctuation;
                 currentSentenceIndex = 1;
                 if (sentences.length > 1) {
                     currentWordIndex = 0;
-                    currentSentenceWords = sentences[currentSentenceIndex].trim().split("");
+                    currentSentenceWords = sentences[currentSentenceIndex].text.split(""); // ✅ 使用text而非整个句子
                     displayedWords = [];
                     displayNextWordOptions();
                 } else {
                     currentSentenceDiv.innerText = "课文只有一句。";
                     document.getElementById("word-options").innerHTML = "";
-                    document.getElementById("message").innerText = "";
                 }
             } else {
                 currentSentenceDiv.innerText = "选必下背诵篇目正在更新，请耐心等待。-yansir";
-                document.getElementById("word-options").innerHTML = "";
-                document.getElementById("message").innerText = "";
             }
         }
 
@@ -365,46 +396,40 @@
 
             currentSentenceDiv.innerText = displayedWords.join("");
 
-            if (currentWordIndex < currentSentenceWords.length) {
-                const correctWord = currentSentenceWords[currentWordIndex];
-                
-                const incorrectWords = generateIncorrectWords(); // 获取两个干扰字
-                const options = [
-                    { text: correctWord, correct: true },
-                    { text: incorrectWords[0], correct: false }, // 第一个干扰字
-                    { text: incorrectWords[1], correct: false }  // 第二个干扰字
-                ];
-
-
-                options.sort(() => Math.random() - 0.5);
-
-                options.forEach(option => {
-                    const button = document.createElement("button");
-                    button.innerText = option.text;
-                    button.classList.add("option-button");
-                    button.onclick = () => checkAnswer(option);
-                    wordOptionsDiv.appendChild(button);
-                });
-            } else {
-                memorizedSentencesDiv.innerText += " " + sentences[currentSentenceIndex] + (memorizationText.includes("。") || memorizationText.includes("？") || memorizationText.includes("！") ? "。" : "");
+            if (currentWordIndex >= currentSentenceWords.length) {
+                memorizedSentencesDiv.innerText += sentences[currentSentenceIndex].text + sentences[currentSentenceIndex].punctuation;
                 currentSentenceIndex++;
-                currentWordIndex = 0;
-                displayedWords = [];
                 if (currentSentenceIndex < sentences.length) {
-                    currentSentenceWords = sentences[currentSentenceIndex].trim().split("");
-                    displayNextWordOptions();
+                    currentSentenceWords = sentences[currentSentenceIndex].text.split("");
+                    currentWordIndex = 0;
+                    displayedWords = [];
+                    setTimeout(displayNextWordOptions, 10); // 异步调用避免递归过深
                 } else {
-                    // add start
-                    currentSentenceDiv.innerText = `本篇课文背诵完毕！加油！--yansir\n错误次数：${errorCount} 次`;
-                    // add end
-                    wordOptionsDiv.innerHTML = "";
+                    currentSentenceDiv.innerText = `本篇课文背诵完毕！错误次数：${errorCount}`;
                 }
+                return; // 立即结束当前执行
             }
-        }
 
+            // 正常显示选项的逻辑
+            const correctWord = currentSentenceWords[currentWordIndex];
+            const incorrectWords = generateIncorrectWords();
+            const options = [
+                { text: correctWord, correct: true },
+                { text: incorrectWords[0], correct: false },
+                { text: incorrectWords[1], correct: false }
+            ].sort(() => Math.random() - 0.5);
+
+            options.forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option.text;
+                button.classList.add("option-button");
+                button.onclick = () => checkAnswer(option);
+                wordOptionsDiv.appendChild(button);
+            });
+        }
         
         function generateIncorrectWords() { // 修改函数名和返回值结构
-            const allChars = memorizationText.replace(/[，。？！.?! ]/g, '');
+            const allChars = memorizationText.replace(/[，。？！：；、.?!:;]/g, '');
             let incorrectWords = []; // 改为数组存储两个干扰字
             while (incorrectWords.length < 2) { // 循环生成两个不同的干扰字
                     const randomIndex = Math.floor(Math.random() * allChars.length);

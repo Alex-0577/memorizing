@@ -128,6 +128,31 @@
         .night-mode button {
             background-color: #404040 !important;
             color: #c0c0c0 !important; }
+        body.night-mode #memorized-sentences {
+            color: #b8b8b8 !important; /* 已背诵句子的浅灰色 */ }
+        body.night-mode #current-sentence {
+            color: #e0e0e0 !important; /* 当前句子的亮白色 */ }
+        body.night-mode .correct {
+            background-color: #429645 !important; /* 正确选项更醒目的绿色 */
+            color: #ffffff !important; }
+        body.night-mode .incorrect {
+            background-color: #ce4745 !important; /* 错误选项更醒目的红色 */
+            color: #ffffff !important; }
+        body.night-mode #message {
+            color: #e35a58 !important; /* 错误提示文字颜色 */ }
+        body.night-mode #current-sentence[style*="选必下背诵篇目正在更新"],
+        body.night-mode #current-sentence:contains("本篇课文背诵完毕") {
+            color: #81d4fa !important; /* 浅蓝色提示文字 */ }
+        body.night-mode #poem-select option {
+            color: #e0e0e0;
+            background-color: #3d3d3d; }
+        body.night-mode select {
+            background-color: #3d3d3d !important;
+            color: #e0e0e0 !important;
+            border-color: #5d5d5d !important; }
+        body.night-mode select option {
+            background-color: #4d4d4d !important;
+            color: #e0e0e0 !important; }
         /* add end */
     </style>
 </head>

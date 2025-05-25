@@ -1,4 +1,3 @@
-<!-- Branch Name: KeyboardControl -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,7 +45,7 @@
             background-color: #f9f9f9; 
             color: #333; 
             font-size: 16px; 
-            transition: background-color 0.3s ease/* add start */, color 0.3s ease/* add end */; }
+            transition: background-color 0.3s ease, color 0.3s ease; }
         #poem-categories button:hover { 
             background-color: #eee; }
         /* 添加选中状态的样式 */
@@ -110,7 +109,6 @@
             margin-bottom: 20px; }
         #poem-select-container label { 
             margin-bottom: 5px; }
-        /* add start */
         body.night-mode {
             background-color: #2d2d2d;
             color: #e0e0e0; }
@@ -157,7 +155,6 @@
         .option-button:focus {
             outline: 2px solid #00838f;
             outline-offset: 2px; }
-        /* add end */
         .modal {
             display: none;
             position: fixed;
@@ -187,14 +184,12 @@
 </head>
 <body>
     <div class="container">
-        <!-- add start -->
         <div style="position: absolute; right: 20px; top: 20px;">
             <button onclick="toggleNightMode()" 
                     style="padding: 5px 10px; border-radius: 12px;">🌙</button>
             <button onclick="openSettings()" 
                     style="padding: 5px 10px; border-radius: 12px;">⚙</button>
         </div>
-        <!-- add end -->
         <h1>量子课文背诵助手</h1>
         <div class="developer-info">Developed by yansir with the assistance of AI</div>
         <div class="developer-info">Modified by AlexNotFoundBNDS</div>
@@ -352,10 +347,8 @@
             const selectedValue = document.getElementById("poem-select").value;
             if (selectedValue) {
                 const [category, title] = selectedValue.split("-");
-                // add start
                 errorCount = 0;
                 currentPoemTitle = title;
-                // add end
                 memorizationText = poems[category][title];
                 startPractice();
             } else {
@@ -386,7 +379,7 @@
                     if (currentText) {
                         sentences.push({
                             text: currentText,
-                            punctuation: part // ✅ 保留原始标点
+                            punctuation: part // 保留原始标点
                         });
                         currentText = "";
                     }
@@ -409,7 +402,7 @@
                 currentSentenceIndex = 1;
                 if (sentences.length > 1) {
                     currentWordIndex = 0;
-                    currentSentenceWords = sentences[currentSentenceIndex].text.split(""); // ✅ 使用text而非整个句子
+                    currentSentenceWords = sentences[currentSentenceIndex].text.split(""); // 使用text而非整个句子
                     displayedWords = [];
                     displayNextWordOptions();
                 } else {
@@ -423,6 +416,10 @@
 
         function displayNextWordOptions() {
             // console.log("生成新选项")
+            // 纠错状态清除
+            // document.querySelectorAll('[data-force-key]').forEach(btn => {
+            //     btn.removeAttribute('data-force-key');
+            // });
             if (currentKeyHandler) {
                 document.removeEventListener('keydown', currentKeyHandler);
             }
@@ -463,6 +460,7 @@
             document.removeEventListener('keydown', handleKeyPress);    // 移除旧的键盘监听
             options.forEach((option, index) => { // 添加index参数
                 const button = document.createElement("button");
+                button.dataset.originalIndex = index;
                 button.innerText = option.text;
                 button.classList.add("option-button");
                 button.setAttribute('data-index', index); // 添加索引标记
@@ -478,25 +476,26 @@
             const allChars = memorizationText.replace(/[，。？！：；、.?!:;]/g, '');
             let incorrectWords = []; // 改为数组存储两个干扰字
             while (incorrectWords.length < 2) { // 循环生成两个不同的干扰字
-                    const randomIndex = Math.floor(Math.random() * allChars.length);
-                    const char = allChars[randomIndex];
-                    if (char !== currentSentenceWords[currentWordIndex] && !incorrectWords.includes(char)) {
-            incorrectWords.push(char);
-        }
-    }
-    return incorrectWords;
-}   
+                const randomIndex = Math.floor(Math.random() * allChars.length);
+                const char = allChars[randomIndex];
+                if (char !== currentSentenceWords[currentWordIndex] && !incorrectWords.includes(char)) {
+                    incorrectWords.push(char);
+                }
+            }
+            return incorrectWords;
+        }   
 
         function checkAnswer(selectedOption) {
             // 禁用所有按钮
             document.querySelectorAll('.option-button').forEach(btn => {
                 btn.disabled = true;
             });
-            document.removeEventListener('keydown', handleKeyPress);        // 移除键盘监听
+            document.removeEventListener('keydown', handleKeyPress);
             const wordOptionsDiv = document.getElementById("word-options");
             const messageDiv = document.getElementById("message");
             const correctWord = currentSentenceWords[currentWordIndex];
 
+            // 标记选项正确/错误状态
             wordOptionsDiv.querySelectorAll('.option-button').forEach(button => {
                 button.disabled = true;
                 if (button.innerText === selectedOption.text) {
@@ -507,42 +506,76 @@
             });
 
             if (selectedOption.correct) {
+                // 正确选择的处理
                 displayedWords.push(selectedOption.text);
                 currentWordIndex++;
                 setTimeout(displayNextWordOptions, 300);
             } else {
-                // add start
+                // 错误选择的处理（根据图片中的"何"字错误场景）
                 errorCount++;
-                // add end
-                messageDiv.innerText = `错了，请点击正确的字继续。`;
-                wordOptionsDiv.querySelectorAll('.option-button').forEach(button => {
-                    if (button.innerText === correctWord) {
-                        button.onclick = () => {
-                            displayedWords.push(correctWord);
-                            currentWordIndex++;
-                            setTimeout(displayNextWordOptions, 300);
-                        };
-                        button.disabled = false;
-                    }
-                });
+                const correctButton = document.querySelector('.correct');
+                if (correctButton) {
+                    // 获取正确按钮的原始位置
+                    const originalIndex = parseInt(correctButton.dataset.originalIndex);
+                    // 使用动态键配置（根据图片中"苦"字是第三个选项）
+                    const correctKey = keyConfig[originalIndex]; 
+
+                    // 创建新的点击/按键处理器
+                    const continueHandler = () => {
+                        displayedWords.push(correctButton.textContent.replace(/$\w$$/, ''));
+                        currentWordIndex++;
+                        correctButton.removeEventListener('click', continueHandler);
+                        document.removeEventListener('keydown', keyHandler);
+                        displayNextWordOptions();
+                    };
+
+                    // 鼠标点击监听
+                    correctButton.addEventListener('click', continueHandler);
+
+                    // 键盘按键监听（修改后的关键部分）
+                    const keyHandler = (e) => {
+                        if (e.key.toLowerCase() === correctKey) { 
+                            continueHandler();
+                        }
+                    };
+                    
+                    document.addEventListener('keydown', keyHandler);
+                }
             }
         }
 
         function handleKeyPress(e) {
-            const buttons = [...document.querySelectorAll('.option-button')];
-            const keyMap = Object.values(keyConfig); // 使用配置的按键
-            
+            if (document.activeElement.tagName === 'INPUT') return;
+            // 获取当前所有可用按钮（包含纠错环节的单个按钮）
+            const activeButtons = [...document.querySelectorAll('.option-button:not([disabled])')];
+            const keyMap = Object.values(keyConfig);
             const pressedKey = e.key.toLowerCase();
-            const targetIndex = keyMap.indexOf(pressedKey);
 
-            if(targetIndex > -1 && buttons[targetIndex]) {
-                buttons[targetIndex].click();
+            const errorStateButton = document.querySelector('.correct[data-force-key]');
+            if (errorStateButton) {
+                if (e.key.toLowerCase() === errorStateButton.dataset.forceKey) {
+                    errorStateButton.click();
+                }
+                return;
+            }
+            
+            if (activeButtons.length === 3) {
+                const targetIndex = keyMap.indexOf(pressedKey);
+                if (targetIndex > -1) {
+                    activeButtons[targetIndex].click();
+                }
             }
         }
 
+        document.getElementById('key1').addEventListener('focus', () => isSettingInputActive = true);
+        document.getElementById('key2').addEventListener('focus', () => isSettingInputActive = true);
+        document.getElementById('key3').addEventListener('focus', () => isSettingInputActive = true);
+        document.getElementById('key1').addEventListener('blur', () => isSettingInputActive = false);
+        document.getElementById('key2').addEventListener('blur', () => isSettingInputActive = false);
+        document.getElementById('key3').addEventListener('blur', () => isSettingInputActive = false);
+
         // Initial state: Poem select should be hidden
         poemSelectContainer.style.display = "none";
-        // add start
         function toggleNightMode() {
             document.body.classList.toggle('night-mode');
             const isNight = document.body.classList.contains('night-mode');
@@ -583,7 +616,6 @@
                 document.querySelector('[onclick="toggleNightMode()"]').textContent = '☀️';
             }
         });
-        // add end
     </script>
 
     <div id="settingsModal" class="modal">

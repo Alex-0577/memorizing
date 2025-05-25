@@ -1,3 +1,4 @@
+<!-- Branch Name: KeyboardControl -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -153,7 +154,35 @@
         body.night-mode select option {
             background-color: #4d4d4d !important;
             color: #e0e0e0 !important; }
+        .option-button:focus {
+            outline: 2px solid #00838f;
+            outline-offset: 2px; }
         /* add end */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000; }
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            width: 300px;
+            margin: 100px auto;
+            border-radius: 8px; }
+        .night-mode .modal-content {
+            background: #3d3d3d;
+            color: #e0e0e0; }
+        .key-config {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0; }
+        .modal-actions {
+            text-align: right;
+            margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -162,6 +191,8 @@
         <div style="position: absolute; right: 20px; top: 20px;">
             <button onclick="toggleNightMode()" 
                     style="padding: 5px 10px; border-radius: 12px;">🌙</button>
+            <button onclick="openSettings()" 
+                    style="padding: 5px 10px; border-radius: 12px;">⚙</button>
         </div>
         <!-- add end -->
         <h1>量子课文背诵助手</h1>
@@ -279,6 +310,8 @@
         let currentSentenceWords = [];
         let displayedWords = [];
         let currentCategory = ""; // 添加变量跟踪当前选中的分类
+        let currentKeyHandler = null;
+        let keyConfig = { 0: 'j', 1: 'k', 2: 'l' };
         // edit start
         let errorCount = 0;
         let currentPoemTitle = "";
@@ -389,7 +422,14 @@
         }
 
         function displayNextWordOptions() {
+            // console.log("生成新选项")
+            if (currentKeyHandler) {
+                document.removeEventListener('keydown', currentKeyHandler);
+            }
             const wordOptionsDiv = document.getElementById("word-options");
+            while (wordOptionsDiv.firstChild) {
+                wordOptionsDiv.removeChild(wordOptionsDiv.firstChild);
+            }
             const messageDiv = document.getElementById("message");
             messageDiv.innerText = "";
             wordOptionsDiv.innerHTML = "";
@@ -411,6 +451,7 @@
             }
 
             // 正常显示选项的逻辑
+            // console.log("当前选项容器子元素数量:", wordOptionsDiv.children.length); // 应为0
             const correctWord = currentSentenceWords[currentWordIndex];
             const incorrectWords = generateIncorrectWords();
             const options = [
@@ -419,13 +460,18 @@
                 { text: incorrectWords[1], correct: false }
             ].sort(() => Math.random() - 0.5);
 
-            options.forEach(option => {
+            document.removeEventListener('keydown', handleKeyPress);    // 移除旧的键盘监听
+            options.forEach((option, index) => { // 添加index参数
                 const button = document.createElement("button");
                 button.innerText = option.text;
                 button.classList.add("option-button");
+                button.setAttribute('data-index', index); // 添加索引标记
                 button.onclick = () => checkAnswer(option);
                 wordOptionsDiv.appendChild(button);
             });
+            // 添加新键盘监听
+            currentKeyHandler = handleKeyPress;
+            document.addEventListener('keydown', currentKeyHandler);
         }
         
         function generateIncorrectWords() { // 修改函数名和返回值结构
@@ -442,6 +488,11 @@
 }   
 
         function checkAnswer(selectedOption) {
+            // 禁用所有按钮
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+            });
+            document.removeEventListener('keydown', handleKeyPress);        // 移除键盘监听
             const wordOptionsDiv = document.getElementById("word-options");
             const messageDiv = document.getElementById("message");
             const correctWord = currentSentenceWords[currentWordIndex];
@@ -477,6 +528,18 @@
             }
         }
 
+        function handleKeyPress(e) {
+            const buttons = [...document.querySelectorAll('.option-button')];
+            const keyMap = Object.values(keyConfig); // 使用配置的按键
+            
+            const pressedKey = e.key.toLowerCase();
+            const targetIndex = keyMap.indexOf(pressedKey);
+
+            if(targetIndex > -1 && buttons[targetIndex]) {
+                buttons[targetIndex].click();
+            }
+        }
+
         // Initial state: Poem select should be hidden
         poemSelectContainer.style.display = "none";
         // add start
@@ -488,8 +551,32 @@
             event.target.textContent = isNight ? '☀️' : '🌙';
         }
 
+        // 设置弹窗控制
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'block';
+            document.getElementById('key1').value = keyConfig[0];
+            document.getElementById('key2').value = keyConfig[1];
+            document.getElementById('key3').value = keyConfig[2];
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            keyConfig = {
+                0: document.getElementById('key1').value.toLowerCase(),
+                1: document.getElementById('key2').value.toLowerCase(),
+                2: document.getElementById('key3').value.toLowerCase()
+            };
+            localStorage.setItem('keyConfig', JSON.stringify(keyConfig));
+            closeSettings();
+        }
+
         // 页面加载时检查设置
         document.addEventListener('DOMContentLoaded', () => {
+            const savedKeys = localStorage.getItem('keyConfig');
+            if(savedKeys) keyConfig = JSON.parse(savedKeys);
             const savedMode = localStorage.getItem('nightMode') === 'true';
             if (savedMode) {
                 document.body.classList.add('night-mode');
@@ -498,5 +585,20 @@
         });
         // add end
     </script>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h3>按键设置</h3>
+            <div class="key-config">
+                <label>第一选项键：<input type="text" id="key1" maxlength="1"></label>
+                <label>第二选项键：<input type="text" id="key2" maxlength="1"></label>
+                <label>第三选项键：<input type="text" id="key3" maxlength="1"></label>
+            </div>
+            <div class="modal-actions">
+                <button onclick="saveSettings()">保存</button>
+                <button onclick="closeSettings()">取消</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

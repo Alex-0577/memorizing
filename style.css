@@ -1,0 +1,149 @@
+body { 
+    font-family: 'Arial', sans-serif; 
+    background-color: #f4f4f4; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; 
+    min-height: 100vh; 
+    margin-top: 40px; }
+.container { 
+    background-color: #fff; 
+    padding: 30px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+    width: 80%; 
+    max-width: 600px; }
+h1 { 
+    color: #333; 
+    text-align: center; 
+    margin-bottom: 5px; }
+.developer-info { 
+    color: #777; 
+    text-align: center; 
+    font-size: 0.8em; 
+    margin-bottom: 20px; }
+label { 
+    display: block; 
+    margin-bottom: 10px; 
+    font-weight: bold; 
+    color: #555; }
+#poem-categories { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 15px; }
+#poem-categories button { 
+    padding: 10px 15px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    background-color: #f9f9f9; 
+    color: #333; 
+    font-size: 16px; 
+    transition: background-color 0.3s ease/* add start */, color 0.3s ease/* add end */; }
+#poem-categories button:hover { 
+    background-color: #eee; }
+/* 添加选中状态的样式 */
+#poem-categories button.active { 
+    background-color: #e0f7fa; 
+    color: #00838f; }
+#poem-select-label { 
+    display: block; 
+    margin-bottom: 5px; 
+    font-weight: bold; 
+    color: #555; }
+select { 
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+    font-size: 16px; }
+#output-area { 
+    border: 1px solid #ccc; 
+    padding: 15px; 
+    margin-bottom: 20px; 
+    min-height: 50px; 
+    border-radius: 4px; 
+    background-color: #f9f9f9; }
+#memorized-sentences { 
+    margin-bottom: 15px; 
+    color: #777; }
+#current-sentence { 
+    margin-bottom: 15px; 
+    font-weight: bold; 
+    color: #333; }
+#word-options { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 15px; 
+    flex-wrap: wrap; }
+.option-button { 
+    padding: 10px 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    background-color: #e0f7fa; 
+    color: #00838f; 
+    font-size: 16px; 
+    transition: background-color 0.3s ease; }
+.option-button:hover { 
+    background-color: #b2ebf2; }
+.correct { 
+    background-color: #81c784; 
+    color: #fff; }
+.incorrect { 
+    background-color: #e57373; 
+    color: #fff; }
+#message { 
+    color: #d32f2f; 
+    margin-top: 10px; 
+    font-weight: bold; }
+#poem-select-container { 
+    margin-bottom: 20px; }
+#poem-select-container label { 
+    margin-bottom: 5px; }
+/* night mode */
+body.night-mode {
+    background-color: #2d2d2d;
+    color: #e0e0e0; }
+.night-mode h1 {
+    color: #dddddd !important; /* 强制覆盖原有颜色 */
+    text-shadow: 0 2px 3px rgba(255, 255, 255, 0.1); }
+.night-mode label {
+    color: #aaaaaa !important; /* 强制覆盖原有颜色 */
+    text-shadow: 0 2px 3px rgba(255, 255, 255, 0.1); }
+.night-mode .container {
+    background-color: #3d3d3d;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1); }
+.night-mode #output-area {
+    background-color: #4d4d4d;
+    border-color: #5d5d5d; }
+.night-mode button {
+    background-color: #404040 !important;
+    color: #c0c0c0 !important; }
+body.night-mode #memorized-sentences {
+    color: #b8b8b8 !important; /* 已背诵句子的浅灰色 */ }
+body.night-mode #current-sentence {
+    color: #e0e0e0 !important; /* 当前句子的亮白色 */ }
+body.night-mode .correct {
+    background-color: #429645 !important; /* 正确选项更醒目的绿色 */
+    color: #ffffff !important; }
+body.night-mode .incorrect {
+    background-color: #ce4745 !important; /* 错误选项更醒目的红色 */
+    color: #ffffff !important; }
+body.night-mode #message {
+    color: #e35a58 !important; /* 错误提示文字颜色 */ }
+body.night-mode #current-sentence[style*="选必下背诵篇目正在更新"],
+body.night-mode #current-sentence:contains("本篇课文背诵完毕") {
+    color: #81d4fa !important; /* 浅蓝色提示文字 */ }
+body.night-mode #poem-select option {
+    color: #e0e0e0;
+    background-color: #3d3d3d; }
+body.night-mode select {
+    background-color: #3d3d3d !important;
+    color: #e0e0e0 !important;
+    border-color: #5d5d5d !important; }
+body.night-mode select option {
+    background-color: #4d4d4d !important;
+    color: #e0e0e0 !important; }

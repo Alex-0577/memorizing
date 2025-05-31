@@ -109,7 +109,6 @@
             margin-bottom: 20px; }
         #poem-select-container label { 
             margin-bottom: 5px; }
-        /* add start */
         body.night-mode {
             background-color: #2d2d2d;
             color: #e0e0e0; }
@@ -153,7 +152,6 @@
         body.night-mode select option {
             background-color: #4d4d4d !important;
             color: #e0e0e0 !important; }
-        /* add end */
     </style>
 </head>
 <body>
@@ -278,11 +276,9 @@
         let currentWordIndex = 0;
         let currentSentenceWords = [];
         let displayedWords = [];
-        let currentCategory = ""; // 添加变量跟踪当前选中的分类
-        // edit start
+        let currentCategory = ""; // 跟踪当前选中的分类
         let errorCount = 0;
         let currentPoemTitle = "";
-        // edit end
         const memorizedSentencesDiv = document.getElementById("memorized-sentences");
         const currentSentenceDiv = document.getElementById("current-sentence");
         const poemSelectContainer = document.getElementById("poem-select-container");
@@ -319,10 +315,8 @@
             const selectedValue = document.getElementById("poem-select").value;
             if (selectedValue) {
                 const [category, title] = selectedValue.split("-");
-                // add start
                 errorCount = 0;
                 currentPoemTitle = title;
-                // add end
                 memorizationText = poems[category][title];
                 startPractice();
             } else {
@@ -336,8 +330,8 @@
         }
 
         function startPractice() {
-            // 修改后的正则表达式（包含所有中文标点）
-            const splitRegex = /([，。！？；：“”‘’—（）【】、])/; // ✅ 支持更多中文标点
+            // 包含所有中文标点
+            const splitRegex = /([，。！？；：“”‘’—（）【】、])/;
             const tempParts = memorizationText.split(splitRegex);
 
             sentences = [];
@@ -353,7 +347,7 @@
                     if (currentText) {
                         sentences.push({
                             text: currentText,
-                            punctuation: part // ✅ 保留原始标点
+                            punctuation: part // 保留原始标点
                         });
                         currentText = "";
                     }
@@ -368,15 +362,14 @@
                 });
             }
 
-            // 调试输出（完成后可删除）
-            console.log("分割结果：", sentences);
+            // console.log("分割结果：", sentences);
 
             if (sentences.length > 0) {
                 memorizedSentencesDiv.innerText = sentences[0].text + sentences[0].punctuation;
                 currentSentenceIndex = 1;
                 if (sentences.length > 1) {
                     currentWordIndex = 0;
-                    currentSentenceWords = sentences[currentSentenceIndex].text.split(""); // ✅ 使用text而非整个句子
+                    currentSentenceWords = sentences[currentSentenceIndex].text.split(""); // 使用text而非整个句子
                     displayedWords = [];
                     displayNextWordOptions();
                 } else {
@@ -435,11 +428,11 @@
                     const randomIndex = Math.floor(Math.random() * allChars.length);
                     const char = allChars[randomIndex];
                     if (char !== currentSentenceWords[currentWordIndex] && !incorrectWords.includes(char)) {
-            incorrectWords.push(char);
-        }
-    }
-    return incorrectWords;
-}   
+                    incorrectWords.push(char);
+                }
+            }
+            return incorrectWords;
+        }   
 
         function checkAnswer(selectedOption) {
             const wordOptionsDiv = document.getElementById("word-options");
@@ -460,9 +453,7 @@
                 currentWordIndex++;
                 setTimeout(displayNextWordOptions, 300);
             } else {
-                // add start
                 errorCount++;
-                // add end
                 messageDiv.innerText = `错了，请点击正确的字继续。`;
                 wordOptionsDiv.querySelectorAll('.option-button').forEach(button => {
                     if (button.innerText === correctWord) {
@@ -484,7 +475,6 @@
             document.body.classList.toggle('night-mode');
             const isNight = document.body.classList.contains('night-mode');
             localStorage.setItem('nightMode', isNight);
-            // 切换按钮图标
             event.target.textContent = isNight ? '☀️' : '🌙';
         }
 
@@ -496,7 +486,6 @@
                 document.querySelector('[onclick="toggleNightMode()"]').textContent = '☀️';
             }
         });
-        // add end
     </script>
 </body>
 </html>

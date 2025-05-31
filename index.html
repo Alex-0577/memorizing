@@ -424,6 +424,9 @@
                 document.removeEventListener('keydown', currentKeyHandler);
             }
             const wordOptionsDiv = document.getElementById("word-options");
+            wordOptionsDiv.innerHTML = "";
+            document.getElementById("message").innerText = "";
+            document.removeEventListener('keydown', currentKeyHandler);
             while (wordOptionsDiv.firstChild) {
                 wordOptionsDiv.removeChild(wordOptionsDiv.firstChild);
             }
@@ -515,18 +518,21 @@
                 errorCount++;
                 const correctButton = document.querySelector('.correct');
                 if (correctButton) {
+                    if (displayedWords.length === currentWordIndex) {
+                        displayedWords.push(correctButton.textContent);
+                    }
+                    correctButton.disabled = false;
+                    currentSentenceDiv.innerText = displayedWords.join("");
                     // 获取正确按钮的原始位置
                     const originalIndex = parseInt(correctButton.dataset.originalIndex);
-                    // 使用动态键配置（根据图片中"苦"字是第三个选项）
                     const correctKey = keyConfig[originalIndex]; 
 
                     // 创建新的点击/按键处理器
                     const continueHandler = () => {
-                        displayedWords.push(correctButton.textContent.replace(/$\w$$/, ''));
-                        currentWordIndex++;
+                        // currentWordIndex++;
                         correctButton.removeEventListener('click', continueHandler);
                         document.removeEventListener('keydown', keyHandler);
-                        displayNextWordOptions();
+                        setTimeout(displayNextWordOptions, 10);
                     };
 
                     // 鼠标点击监听

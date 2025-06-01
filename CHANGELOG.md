@@ -4,7 +4,7 @@
 ### Fixed
 - 对Keyboard分支中的新增功能部分进行了代码重构，现已合并至main。添加了简单的按键提示用户按哪个按键纠错。
 ### Added
-- 使用Google Analyze统计网站访问量 
+- 使用Google Analytics统计网站访问量 
 
 ## [0.2.2] - 2025-5-31
 ### Changed

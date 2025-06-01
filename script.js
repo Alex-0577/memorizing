@@ -262,18 +262,25 @@ function toggleNightMode() {
 
 function openSettings() {
     const modal = document.getElementById('settings-modal');
-    modal.style.display = 'block';
+    modal.classList.add('show');
+    modal.style.display = 'flex';
     
     // 加载保存的设置
     const savedSettings = localStorage.getItem('keySettings');
     if (savedSettings) {
         const settings = JSON.parse(savedSettings);
-        document.querySelector(`input[value="${settings.option}"]`).checked = true;
+        document.querySelectorAll('input[name="key-option"]').forEach(radio => {
+            if (radio.value === settings.option) {
+                radio.checked = true;
+            }
+        });
     }
 }
 
 function closeSettings() {
-    document.getElementById('settings-modal').style.display = 'none';
+    const modal = document.getElementById('settings-modal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
 }
 
 function saveKeySettings() {
@@ -298,9 +305,11 @@ function saveKeySettings() {
     
     closeSettings();
     
-    const messageDiv = document.getElementById("message");
-    messageDiv.innerText = "按键设置已保存！";
-    setTimeout(() => messageDiv.innerText = "", 2000);
+    if (showMessage) {
+        const messageDiv = document.getElementById("message");
+        messageDiv.innerText = "按键设置已保存！";
+        setTimeout(() => messageDiv.innerText = "", 2000);
+    }
 }
 
 // 页面加载时检查设置
@@ -321,6 +330,30 @@ document.addEventListener('DOMContentLoaded', () => {
             closeSettings();
         }
     });
+    const loadKeySettings = () => {
+        const savedSettings = localStorage.getItem('keySettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            const selectedOption = settings.option;
+            
+            // 根据选择更新按键映射
+            switch(selectedOption) {
+                case 'jkl':
+                    keyMap = { first: 'j', second: 'k', third: 'l' };
+                    break;
+                case 'asd':
+                    keyMap = { first: 'a', second: 's', third: 'd' };
+                    break;
+                case 'arrows':
+                    keyMap = { first: 'arrowleft', second: 'arrowup', third: 'arrowright' };
+                    break;
+                case 'numpad':
+                    keyMap = { first: '1', second: '2', third: '3' };
+                    break;
+            }
+        }
+    };
+    loadKeySettings();
 });
 
 document.addEventListener('keydown', function(event) {

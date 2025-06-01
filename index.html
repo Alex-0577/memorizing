@@ -10,6 +10,8 @@
         <div style="position: absolute; right: 20px; top: 20px;">
             <button onclick="toggleNightMode()" 
                     style="padding: 5px 10px; border-radius: 12px;">🌙</button>
+            <button id="settings-button" onclick="openSettings()" 
+                style="padding: 5px 10px; border-radius: 12px; font-size: 1rem;">⚙️</button>
         </div>
         <h1>量子课文背诵助手</h1>
         <div class="developer-info">Developed by yansir with the assistance of AI</div>
@@ -38,6 +40,36 @@
             <div id="current-sentence"></div>
             <div id="word-options"></div>
             <div id="message"></div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>按键设置</h2>
+            <p>选择用于选项的按键组合：</p>
+            
+            <div class="key-option">
+                <input type="radio" id="option-jkl" name="key-option" value="jkl" checked>
+                <label for="option-jkl">J K L (默认)</label>
+            </div>
+            
+            <div class="key-option">
+                <input type="radio" id="option-asd" name="key-option" value="asd">
+                <label for="option-asd">A S D</label>
+            </div>
+            
+            <div class="key-option">
+                <input type="radio" id="option-arrows" name="key-option" value="arrows">
+                <label for="option-arrows">← ↑ → (方向键)</label>
+            </div>
+            
+            <div class="key-option">
+                <input type="radio" id="option-numpad" name="key-option" value="numpad">
+                <label for="option-numpad">1 2 3 (数字键)</label>
+            </div>
+            
+            <button style="padding: 10px 20px; margin-top: 20px;" onclick="saveKeySettings()">保存设置</button>
         </div>
     </div>
 
